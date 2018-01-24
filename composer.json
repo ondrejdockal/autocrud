@@ -1,0 +1,35 @@
+{
+	"name": "docky/autogen",
+	"description": "Automatically generate code from an entity",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Ondřej Dočkal",
+			"email": "ondrej.dockal@apploud.cz",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=7.1"
+	},
+	"autoload": {
+		"psr-4": {
+			"Docky\\Autogen\\": "src"
+		}
+	},
+	"require-dev": {
+		"nette/tester": "^1.7.1",
+		"jakub-onderka/php-parallel-lint": "^0.9.2",
+		"phpstan/phpstan": "^0.7.0",
+		"consistence/coding-standard": "^2.0.0",
+		"slevomat/coding-standard": "^3.0.0",
+		"phing/phing": "^2.16.0",
+		"kdyby/events": "^3.1",
+		"nette/reflection": "^2.4.2"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Docky\\Autogen\\Test\\": "tests"
+		}
+	}
+}

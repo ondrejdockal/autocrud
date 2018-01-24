@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ruleset name="App">
+	<rule ref="./ruleset.xml">
+		<exclude name="PSR1.Files.SideEffects.FoundWithSymbols" />
+		<exclude name="PSR1.Classes.ClassDeclaration.MultipleClasses" />
+		<exclude name="Squiz.Classes.ClassFileName.NoMatch" />
+		<exclude name="SlevomatCodingStandard.Files.TypeNameMatchesFileName" />
+	</rule>
+</ruleset>

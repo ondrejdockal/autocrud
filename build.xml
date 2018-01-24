@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project default="test">
+
+    <!-- ============================= COMPOSITE TASKS ============================= -->
+
+    <target name="test" description="Runs all tests and code analysis" depends="
+		lint,
+		stan,
+		sniffer,
+		tests
+	"/>
+
+    <target name="analyse" description="Runs code analysis - syntax check, statical analysis, sniffer and schema check" depends="
+		lint,
+		stan,
+		sniffer
+	"/>
+
+    <!-- ============================= SYNTAX CHECK ============================= -->
+
+    <target name="lint" description="Checks PHP files for syntax errors">
+        <exec
+            executable="vendor/bin/parallel-lint"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg line="-e php,phpt"/>
+            <arg path="src" />
+            <arg path="tests" />
+        </exec>
+    </target>
+
+    <!-- ============================= STATIC ANALYSIS ============================= -->
+
+    <target name="stan" description="Runs statical code analysis">
+        <exec
+            executable="vendor/bin/phpstan"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg value="analyse"/>
+            <arg line="-l 7"/>
+            <arg line="-c build/PHPstan.neon"/>
+            <arg path="src"/>
+            <arg path="tests"/>
+        </exec>
+    </target>
+
+    <!-- ============================= CODING STANDARD ============================= -->
+
+    <target name="sniffer" description="Checks coding standard" depends="
+		sniffer-src,
+		sniffer-tests
+	"/>
+
+    <target name="sniffer-src">
+        <exec
+            executable="vendor/bin/phpcs"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg value="--standard=build/ruleset.xml"/>
+            <arg value="--extensions=php,phpt"/>
+            <arg value="--encoding=utf-8"/>
+            <arg value="--tab-width=4"/>
+            <arg value="-sp"/>
+            <arg path="src"/>
+        </exec>
+    </target>
+
+    <target name="sniffer-tests">
+        <exec
+            executable="vendor/bin/phpcs"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg value="--standard=build/ruleset-tests.xml"/>
+            <arg value="--extensions=php,phpt"/>
+            <arg value="--encoding=utf-8"/>
+            <arg value="--tab-width=4"/>
+            <arg value="-sp"/>
+            <arg path="tests"/>
+        </exec>
+    </target>
+
+    <target name="fix" description="Fixes the code regarding coding standard" depends="
+		fix-src,
+		fix-tests
+	"/>
+
+    <target name="fix-src">
+        <exec
+            executable="vendor/bin/phpcbf"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg value="--standard=build/ruleset.xml"/>
+            <arg value="--extensions=php,phpt"/>
+            <arg value="--encoding=utf-8"/>
+            <arg value="--tab-width=4"/>
+            <arg value="-sp"/>
+            <arg path="src"/>
+        </exec>
+    </target>
+
+    <target name="fix-tests">
+        <exec
+            executable="vendor/bin/phpcbf"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg value="--standard=build/ruleset-tests.xml"/>
+            <arg value="--extensions=php,phpt"/>
+            <arg value="--encoding=utf-8"/>
+            <arg value="--tab-width=4"/>
+            <arg value="-sp"/>
+            <arg path="tests"/>
+        </exec>
+    </target>
+
+    <!-- ============================= TESTS ============================= -->
+
+    <target name="tests" description="Runs automatic tests">
+        <exec
+            executable="vendor/bin/tester"
+            logoutput="true"
+            passthru="true"
+            checkreturn="true"
+        >
+            <arg line="-p php"/>
+            <arg line="-c build/php.ini"/>
+            <arg value="-s"/>
+            <arg path="tests"/>
+        </exec>
+    </target>
+
+</project>

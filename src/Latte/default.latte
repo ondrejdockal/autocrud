@@ -1,0 +1,36 @@
+{block #title}{include #heading} &raquo; {include #parent}{/block}
+{block heading}{$heading}{/block}
+{block #content}
+<div class="loader" style="display: none;">
+</div>
+
+<div class="row-fluid">
+    <div class="span12">
+        <div class="admin-datagrid" style="margin-top:20px">
+            {control dataGrid}
+        </div>
+    </div>
+</div>
+{/block}
+{block #javascripts}
+    <link href="{$basePath}/statadmin/ublaboo/datagrid.min.css" rel="stylesheet">
+    <link href="{$basePath}/statadmin/css/datagrid-apploud.css" rel="stylesheet">
+    <script src="{$basePath}/statadmin/ublaboo/datagrid.min.js"></script>
+    <link href="{$basePath}/statadmin/ublaboo/bootstrap-datepicker3.min.css" rel="stylesheet">
+    <script src="{$basePath}/statadmin/ublaboo/bootstrap-datepicker.min.js"></script>
+    <script src="{$basePath}/statadmin/ublaboo/netteForms.min.js"></script>
+
+    <script>
+        $.nette.ext({
+            start: function (payload) {
+                $('.loader').show();
+                $('#overlay').show();
+            },
+            complete: function (payload) {
+                $('.loader').hide();
+                $('#overlay').hide();
+            }
+        });
+    </script>
+
+{/block}
