@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
 use Nette\PhpGenerator\PhpNamespace;
 
@@ -11,30 +11,19 @@ class Facade extends BaseGenerator
 
 	public const NAME = 'Facade';
 
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties)
-	{
-		parent::__construct($filePath, $namespace, $className, $properties);
-	}
-
 	private function getFileName(): string
 	{
-		return $this->className . self::NAME;
+		return $this->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->namespace . '\Admin');
+		$php = new PhpNamespace($this->getNamespace() . '\Admin');
 		$php->addUse('Doctrine\ORM\EntityManager');
 
-		$php->addUse('App\\' . $this->className . '\\' . $this->className . Factory::NAME);
-		$php->addUse('App\\' . $this->className . '\\' . $this->className . Repository::NAME);
-		$php->addUse('App\\' . $this->className . '\\' . $this->className);
+		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Factory::NAME);
+		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Repository::NAME);
+		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName());
 
 		$class = $php->addClass($this->getFileName());
 
@@ -42,37 +31,37 @@ class Facade extends BaseGenerator
 			->setVisibility('private')
 			->addComment('@var EntityManager');
 
-		$class->addProperty($this->classNameLower . Factory::NAME)
+		$class->addProperty($this->getClassNameLower() . Factory::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->className . Factory::NAME);
+			->addComment('@var ' . $this->getClassName() . Factory::NAME);
 
-		$class->addProperty($this->classNameLower . Repository::NAME)
+		$class->addProperty($this->getClassNameLower() . Repository::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->className . Repository::NAME);
+			->addComment('@var ' . $this->getClassName() . Repository::NAME);
 
 		$method = $class->addMethod('__construct');
 		$method->addParameter('entityManager')
 			->setTypeHint('Doctrine\ORM\EntityManager');
-		$method->addParameter($this->classNameLower . Factory::NAME)
-			->setTypeHint($this->namespace . '\\' . $this->className . Factory::NAME);
-		$method->addParameter($this->classNameLower . Repository::NAME)
-			->setTypeHint($this->namespace . '\\' . $this->className . Repository::NAME);
+		$method->addParameter($this->getClassNameLower() . Factory::NAME)
+			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Factory::NAME);
+		$method->addParameter($this->getClassNameLower() . Repository::NAME)
+			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Repository::NAME);
 
 		$body = '$this->entityManager = $entityManager;' . PHP_EOL;
-		$body .= '$this->' . $this->classNameLower . Factory::NAME . ' = $' . $this->classNameLower . Factory::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
-		$body .= '$this->' . $this->classNameLower . Repository::NAME . ' = $' . $this->classNameLower . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $this->getClassNameLower() . Factory::NAME . ' = $' . $this->getClassNameLower() . Factory::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $this->getClassNameLower() . Repository::NAME . ' = $' . $this->getClassNameLower() . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
 
 		$method->setBody($body);
 
 		$method = $class->addMethod('create');
-		$method->setReturnType($this->namespace . '\\' . $this->className);
+		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$body = '$entity = $this->' . $this->classNameLower . Factory::NAME . '->create(' . $this->toParameters() . ');' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body = '$entity = $this->' . $this->getClassNameLower() . Factory::NAME . '->create(' . $this->toParameters() . ');' . PHP_EOL; // @codingStandardsIgnoreLine
 		$body .= PHP_EOL;
 		$body .= '$this->entityManager->persist($entity);' . PHP_EOL;
 		$body .= '$this->entityManager->flush($entity);' . PHP_EOL;
@@ -82,19 +71,19 @@ class Facade extends BaseGenerator
 		$method->setBody($body);
 
 		$method = $class->addMethod('update');
-		$method->setReturnType($this->namespace . '\\' . $this->className);
+		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
 		$method->addParameter('id')
 			->setTypeHint('int');
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$body = '$entity = $this->' . $this->classNameLower . Repository::NAME . '->getById($id);' . PHP_EOL;
+		$body = '$entity = $this->' . $this->getClassNameLower() . Repository::NAME . '->getById($id);' . PHP_EOL;
 		$body .= PHP_EOL;
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$body .= $this->toSetter($property['name']) . PHP_EOL;
 		}
 
@@ -111,13 +100,14 @@ class Facade extends BaseGenerator
 		$method->addParameter('id')
 			->setTypeHint('int');
 
-		$body = '$entity = $this->' . $this->classNameLower . Repository::NAME . '->getById($id);' . PHP_EOL;
+		$body = '$entity = $this->' . $this->getClassNameLower() . Repository::NAME . '->getById($id);' . PHP_EOL;
 		$body .= '$this->entityManager->remove($entity);' . PHP_EOL;
 		$body .= '$this->entityManager->flush($entity);' . PHP_EOL;
 
 		$method->setBody($body);
 
-		$this->createPhpFile($php, $this->filePath);
+		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
+		$this->createPhpFile($php, $filePath);
 	}
 
 }

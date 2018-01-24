@@ -2,13 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen;
+namespace Docky\Autocrud;
 
 /**
  * @Annotation
  * @Target({"PROPERTY"})
  */
-final class Autogen
+final class Autocrud
 {
 
 	/**

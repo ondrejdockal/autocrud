@@ -2,43 +2,51 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class BaseGenerator
 {
 
-	/** @var string */
-	protected $filePath;
+	/** @var AutocrudService */
+	private $autocrudService;
 
-	/** @var string */
-	protected $namespace;
-
-	/** @var string */
-	protected $className;
-
-	/** @var mixed[] */
-	protected $properties;
-
-	/** @var string */
-	protected $classNameLower;
-
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties = [])
+	public function __construct(AutocrudService $autocrudService)
 	{
-		$this->filePath = $filePath;
-		$this->namespace = $namespace;
-		$this->className = $className;
-		$this->properties = $properties;
-
-		$this->classNameLower = mb_strtolower($className);
+		$this->autocrudService = $autocrudService;
 	}
+
+	public function getNamespace(): string
+	{
+		return $this->autocrudService->getNamespace();
+	}
+
+	public function getClassName(): string
+	{
+		return $this->autocrudService->getClassName();
+	}
+
+	public function getProperties(): array
+	{
+		return $this->autocrudService->getProperties();
+	}
+
+	public function getClassNameLower(): string
+	{
+		return mb_strtolower($this->getClassName());
+	}
+
+	protected function getPath(): string
+	{
+		$namespace = str_replace('App', '', $this->getNamespace());
+		$namespace = str_replace('\\', '', $namespace);
+
+		$filePath = 'src/' . $namespace . '/';
+		return $filePath;
+	}
+
 
 	protected function createPhpFile(PhpNamespace $php, string $filePath): void
 	{
@@ -55,7 +63,7 @@ class BaseGenerator
 	public function toParameters(): string
 	{
 		$array = [];
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$array[] = '$' . $property['name'];
 		}
 

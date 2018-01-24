@@ -22,8 +22,8 @@
 	<rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
 		<properties>
 			<property name="rootNamespaces" type="array" value="
-				src => Docky\Autogen,
-				tests => Docky\Autogen\Test,
+				src => Docky\Autocrud,
+				tests => Docky\Autocrud\Test,
 			"/>
 		</properties>
 	</rule>

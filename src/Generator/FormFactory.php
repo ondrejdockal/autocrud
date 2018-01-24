@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
 use Nette\PhpGenerator\PhpNamespace;
 
@@ -11,29 +11,18 @@ class FormFactory extends BaseGenerator
 
 	public const NAME = 'FormFactory';
 
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties)
-	{
-		parent::__construct($filePath, $namespace, $className, $properties);
-	}
-
 	private function getFileName(): string
 	{
-		return $this->className . self::NAME;
+		return $this->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->namespace . '\Admin');
+		$php = new PhpNamespace($this->getNamespace() . '\Admin');
 
 		$php->addUse('Nette\Application\UI\Form');
 		$php->addUse('Nette\Utils\ArrayHash');
-		$php->addUse($this->namespace . '\\' . $this->className);
+		$php->addUse($this->getNamespace() . '\\' . $this->getClassName());
 
 		$class = $php->addClass($this->getFileName());
 
@@ -41,7 +30,7 @@ class FormFactory extends BaseGenerator
 		$method->setReturnType('Nette\Application\UI\Form');
 
 		$method->addParameter('entity')
-			->setTypeHint($this->namespace . '\\' . $this->className)
+			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName())
 			->setDefaultValue(null)
 			->setNullable();
 
@@ -52,7 +41,7 @@ class FormFactory extends BaseGenerator
 		$body .= PHP_EOL;
 
 		$prop = [];
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$prop[] = '$values->' . $property['name'];
 
 			$body .= '$form->add' . ucfirst($property['settings']['inputType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\')' . PHP_EOL; // @codingStandardsIgnoreLine
@@ -102,21 +91,22 @@ class FormFactory extends BaseGenerator
 		$method->setReturnType('array');
 
 		$method->addParameter('entity')
-			->setTypeHint($this->namespace . '\\' . $this->className);
+			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName());
 
-		$method->addComment(' @param ' . $this->className . ' $entity');
+		$method->addComment(' @param ' . $this->getClassName() . ' $entity');
 		$method->addComment(' @return mixed[]');
 
 		$body = 'return [' . PHP_EOL;
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$body .= '	\'' . $property['name'] . '\' => $entity->get' . ucfirst($property['name']) . '(),' . PHP_EOL;
 		}
 		$body .= '];' . PHP_EOL;
 
 		$method->setBody($body);
 
-		$this->createPhpFile($php, $this->filePath);
+		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
+		$this->createPhpFile($php, $filePath);
 	}
 
 }

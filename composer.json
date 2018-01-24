@@ -1,5 +1,5 @@
 {
-	"name": "docky/autogen",
+	"name": "docky/autocrud",
 	"description": "Automatically generate code from an entity",
 	"license": "proprietary",
 	"authors": [
@@ -14,7 +14,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Docky\\Autogen\\": "src"
+			"Docky\\Autocrud\\": "src"
 		}
 	},
 	"require-dev": {
@@ -25,11 +25,12 @@
 		"slevomat/coding-standard": "^3.0.0",
 		"phing/phing": "^2.16.0",
 		"kdyby/events": "^3.1",
+		"kdyby/console": "^2.7",
 		"nette/reflection": "^2.4.2"
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Docky\\Autogen\\Test\\": "tests"
+			"Docky\\Autocrud\\Test\\": "tests"
 		}
 	}
 }

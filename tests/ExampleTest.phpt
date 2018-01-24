@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Test;
+namespace Docky\Autocrud\Test;
 
 use Tester\Assert;
 use Tester\TestCase;

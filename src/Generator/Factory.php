@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
 use Nette\PhpGenerator\PhpNamespace;
 
@@ -11,39 +11,29 @@ class Factory extends BaseGenerator
 
 	public const NAME = 'Factory';
 
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties)
-	{
-		parent::__construct($filePath, $namespace, $className, $properties);
-	}
-
 	private function getFileName(): string
 	{
-		return $this->className . self::NAME;
+		return $this->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->namespace);
+		$php = new PhpNamespace($this->getNamespace());
 
 		$class = $php->addClass($this->getFileName());
 
 		$method = $class->addMethod('create');
-		$method->setReturnType($this->namespace . '\\' . $this->className);
+		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$method->setBody('return new ' . $this->className . '(' . $this->toParameters() . ');');
+		$method->setBody('return new ' . $this->getClassName() . '(' . $this->toParameters() . ');');
 
-		$this->createPhpFile($php, $this->filePath);
+		$filePath = $this->getPath() . $this->getClassName() . self::NAME . '.php';
+		$this->createPhpFile($php, $filePath);
 	}
 
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
 use Nette\PhpGenerator\PhpNamespace;
 
@@ -11,25 +11,14 @@ class GridFactory extends BaseGenerator
 
 	public const NAME = 'GridFactory';
 
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties)
-	{
-		parent::__construct($filePath, $namespace, $className, $properties);
-	}
-
 	private function getFileName(): string
 	{
-		return $this->className . self::NAME;
+		return $this->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->namespace . '\Admin');
+		$php = new PhpNamespace($this->getNamespace() . '\Admin');
 
 		$php->addUse('App\DataGrid\DataGridFactory');
 		$php->addUse('Kdyby\Doctrine\QueryBuilder');
@@ -64,7 +53,7 @@ class GridFactory extends BaseGenerator
 
 		$body .= PHP_EOL;
 
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			$body .= '$grid->addColumn' . ucfirst($property['settings']['gridType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\');' . PHP_EOL; // @codingStandardsIgnoreLine
 		}
 
@@ -78,7 +67,8 @@ class GridFactory extends BaseGenerator
 
 		$method->setBody($body);
 
-		$this->createPhpFile($php, $this->filePath);
+		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
+		$this->createPhpFile($php, $filePath);
 	}
 
 }

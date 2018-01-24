@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autogen\Generator;
+namespace Docky\Autocrud\Generator;
 
 use Nette\PhpGenerator\PhpNamespace;
 
@@ -11,52 +11,42 @@ class FrontPresenter extends BaseGenerator
 
 	public const NAME = 'Presenter';
 
-	/**
-	 * @param string $filePath
-	 * @param string $namespace
-	 * @param string $className
-	 * @param mixed[] $properties
-	 */
-	public function __construct(string $filePath, string $namespace, string $className, array $properties)
-	{
-		parent::__construct($filePath, $namespace, $className, $properties);
-	}
-
 	private function getFileName(): string
 	{
-		return $this->className . self::NAME;
+		return $this->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->namespace . '\UI');
+		$php = new PhpNamespace($this->getNamespace() . '\UI');
 
 		$php->addUse('App\UI\Front\FrontPresenter');
 
-		$php->addUse('App\\' . $this->className . '\\' . $this->className . Repository::NAME);
+		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Repository::NAME);
 
 		$class = $php->addClass($this->getFileName());
 		$class->addExtend('App\UI\Front\FrontPresenter');
 
 		$class->addComment('@presenterModule Front');
 
-		$class->addProperty($this->classNameLower . Repository::NAME)
+		$class->addProperty($this->getClassNameLower() . Repository::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->className . Repository::NAME);
+			->addComment('@var ' . $this->getClassName() . Repository::NAME);
 
 		$method = $class->addMethod('__construct');
-		$method->addParameter($this->classNameLower . Repository::NAME)
-			->setTypeHint($this->namespace . '\\' . $this->className . Repository::NAME);
+		$method->addParameter($this->getClassNameLower() . Repository::NAME)
+			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Repository::NAME);
 
 		$body = 'parent::__construct();' . PHP_EOL;
-		$body .= '$this->' . $this->classNameLower . Repository::NAME . ' = $' . $this->classNameLower . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $this->getClassNameLower() . Repository::NAME . ' = $' . $this->getClassNameLower() . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
 
 		$method->setBody($body);
 
 		$method = $class->addMethod('renderDefault');
-		$method->setReturnType('void');;
+		$method->setReturnType('void');
 
-		$this->createPhpFile($php, $this->filePath);
+		$filePath = $this->getPath() . 'UI/' . $this->getClassName() . self::NAME . '.php';
+		$this->createPhpFile($php, $filePath);
 	}
 
 }

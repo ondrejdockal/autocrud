@@ -1,21 +1,28 @@
-# Autogen
+# Autocrud
 
 Automatically generate code from an entity for NETTE.
 
 ## Installation
 
 ```sh
-$ composer require docky\autogen
+$ composer require docky\autocrud
 ```
 
 #### To config.neon
 
 ```yml
-class: Docky\Autogen\AutogenCommand
-	arguments:
-		-
-			- App\Test\Test
-	tags: [kdyby.console.command]
+extensions:
+	console: Kdyby\Console\DI\ConsoleExtension
+	autocrud: Docky\Autocrud\DI\AutocrudExtension
+
+autocrud:
+	entities:
+		- App\Test\Test
+
+annotations:
+	ignore:
+		- Docky\Autocrud\Autocrud
+		- Autocrud
 ```
 
 #### To Entity 
@@ -24,12 +31,12 @@ class: Docky\Autogen\AutogenCommand
 /**
  * @var string
  * @ORM\Column(type="string")
- * @Autogen(type="string", inputType="text", inputLabel="Název", gridType="text")
+ * @Autocrud(type="string", inputType="text", inputLabel="Název", gridType="text")
  */
 private $title;
 ```
 
 #### RUN
 ```sh
-$ bin/console autogen
+$ bin/console autocrud
 ```
