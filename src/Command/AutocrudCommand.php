@@ -40,10 +40,8 @@ class AutocrudCommand extends Command
 		$output->writeln('<info>Starting...</info>');
 
 		foreach ($this->entities as $entity) {
-			$this->autocrudGenerator->generate($entity);
+			$this->autocrudGenerator->generate($entity, $output);
 		}
-
-		exec('php src/console.php orm:schema-tool:update --force');
 
 		$output->writeln('<info>Done</info>');
 	}

@@ -13,6 +13,7 @@ use Docky\Autocrud\Generator\GridFactory;
 use Docky\Autocrud\Generator\Presenter;
 use Docky\Autocrud\Generator\Repository;
 use Nette\Reflection\ClassType;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class AutocrudGenerator
 {
@@ -62,9 +63,10 @@ class AutocrudGenerator
 		$this->frontPresenter = $frontPresenter;
 	}
 
-	public function generate(string $entity): void
+	public function generate(string $entity, OutputInterface $output): void
 	{
 		$reflection = new ClassType($entity);
+		$name = $reflection->getAnnotation('Autocrud');
 
 		$namespace = $reflection->getNamespaceName();
 		$className = $reflection->getShortName();
@@ -83,6 +85,7 @@ class AutocrudGenerator
 			}
 		}
 
+		$this->autocrudService->setName($name['name']);
 		$this->autocrudService->setNamespace($namespace);
 		$this->autocrudService->setClassName($className);
 		$this->autocrudService->setProperties($properties);
@@ -98,8 +101,14 @@ class AutocrudGenerator
 		$this->frontPresenter->create();
 
 		$this->autocrudService->generateTemplates();
-		$this->autocrudService->appendToConfig();
-		$this->autocrudService->appendToMenu();
+
+		$data = '- ' . $namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . Facade::NAME . PHP_EOL;
+		$data .= '- ' . $namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . FormFactory::NAME . PHP_EOL;
+		$data .= '- ' . $namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . GridFactory::NAME . PHP_EOL;
+		$data .= '- ' . $namespace . '\\' . $className . Factory::NAME . PHP_EOL;
+		$data .= '- ' . $namespace . '\\' . $className . Repository::NAME .'(' . $namespace . '\\' . $className . ')' . PHP_EOL; //
+
+		$output->writeln($data);
 
 	}
 

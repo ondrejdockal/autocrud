@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Docky\Autocrud;
+namespace Docky\Autocrud\Annotation;
 
 /**
  * @Annotation
@@ -14,21 +14,26 @@ final class Autocrud
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $name;
 
 	/**
 	 * @var string
 	 */
-	public $inputType;
+	public $typehint;
 
 	/**
 	 * @var string
 	 */
-	public $inputLabel;
+	public $input;
 
 	/**
 	 * @var string
 	 */
-	public $gridType;
+	public $label;
+
+	/**
+	 * @var string
+	 */
+	public $grid;
 
 }

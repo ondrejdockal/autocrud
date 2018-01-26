@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Docky\Autocrud\Generator;
 
 use Docky\Autocrud\AutocrudService;
-use Nette\PhpGenerator\PhpNamespace;
 
 class BaseGenerator
 {

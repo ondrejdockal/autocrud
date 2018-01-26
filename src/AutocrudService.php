@@ -9,6 +9,15 @@ use Nette\PhpGenerator\PhpNamespace;
 class AutocrudService
 {
 
+	public const ADMIN = 'Admin';
+	public const UI = 'UI';
+
+	/** @var string */
+	private $dir;
+
+	/** @var string */
+	private $name;
+
 	/** @var string */
 	private $namespace;
 
@@ -17,6 +26,26 @@ class AutocrudService
 
 	/** @var mixed[] */
 	private $properties;
+
+	public function __construct(string $dir)
+	{
+		$this->dir = $dir;
+	}
+
+	public function getDir(): string
+	{
+		return $this->dir;
+	}
+
+	public function getName(): string
+	{
+		return $this->name;
+	}
+
+	public function setName(string $name): void
+	{
+		$this->name = $name;
+	}
 
 	public function getNamespace(): string
 	{
@@ -55,10 +84,8 @@ class AutocrudService
 
 	public function getPath(): string
 	{
-		$namespace = str_replace('App', '', $this->getNamespace());
-		$namespace = str_replace('\\', '', $namespace);
-
-		$filePath = 'src/' . $namespace . '/';
+		$namespace = str_replace('App\\', '', $this->getNamespace());
+		$filePath = $this->getDir(). '/' . $namespace . '/';
 		return $filePath;
 	}
 
@@ -70,68 +97,31 @@ class AutocrudService
 
 	public function generateFolders(): void
 	{
-		if (!file_exists($this->getPath() . 'Admin/templates')) {
-			mkdir($this->getPath() . 'Admin/templates', 0777, true);
+		if (!file_exists($this->getPath() . self::ADMIN. '/templates')) {
+			mkdir($this->getPath() . self::ADMIN. '/templates', 0777, true);
 		}
 
-		if (!file_exists($this->getPath() . 'UI/templates')) {
-			mkdir($this->getPath() . 'UI/templates', 0777, true);
+		if (!file_exists($this->getPath() . self::UI. '/templates')) {
+			mkdir($this->getPath() . self::UI. '/templates', 0777, true);
 		}
 	}
 
 	public function generateTemplates(): void
 	{
 
-		$filePath = $this->getPath() . 'Admin/templates/default.latte';
+		$filePath = $this->getPath() . self::ADMIN. '/templates/default.latte';
 		$this->createFile($filePath, file_get_contents(__DIR__ . '/Latte/default.latte'));
 
-		$filePath = $this->getPath() . 'Admin/templates/add.latte';
+		$filePath = $this->getPath() . self::ADMIN. '/templates/add.latte';
 		$this->createFile($filePath, file_get_contents(__DIR__ . '/Latte/add.latte'));
 
-		$filePath = $this->getPath() . 'Admin/templates/form.latte';
+		$filePath = $this->getPath() . self::ADMIN. '/templates/form.latte';
 		$this->createFile($filePath, file_get_contents(__DIR__ . '/Latte/form.latte'));
 
-		$filePath = $this->getPath() . 'UI/templates/default.latte';
+		$filePath = $this->getPath() . self::UI. '/templates/default.latte';
 		$body = '{block #content}'. PHP_EOL;
 		$body .= 'It works!';
 		$this->createFile($filePath, $body);
-	}
-
-	public function appendToConfig(): void
-	{
-		$config = 'config/config.neon';
-
-		$configContent = file_get_contents($config);
-
-		$data = PHP_EOL;
-		$data .= '	- ' . $this->getNamespace() . '\\' . $this->getClassName() . 'Factory' . PHP_EOL;
-		$data .= '	- ' . $this->getNamespace() . '\Admin\\' . $this->getClassName() . 'Facade' . PHP_EOL;
-		$data .= '	- ' . $this->getNamespace() . '\Admin\\' . $this->getClassName() . 'FormFactory' . PHP_EOL;
-		$data .= '	- ' . $this->getNamespace() . '\Admin\\' . $this->getClassName() . 'GridFactory' . PHP_EOL;
-		$data .= '	- ' . $this->getNamespace() . '\\' . $this->getClassName() . 'Repository(' . $this->namespace . '\\' . $this->className . ')' . PHP_EOL; // @codingStandardsIgnoreLine
-
-		if (strpos($configContent, $data) !== false) {
-			file_put_contents($config, '', FILE_APPEND);
-		} else {
-			file_put_contents($config, $data, FILE_APPEND);
-		}
-	}
-
-	public function appendToMenu(): void
-	{
-		$menu = 'src/UI/Admin/menu.latte';
-
-		$menuContent = file_get_contents($menu);
-
-		$data = '{include #item link => \''.$this->getClassName().':\', name => \''.$this->getClassName().'\', icon => \'list\'}' . PHP_EOL; // @codingStandardsIgnoreLine
-		$data .= '	<!-- AUTOGEN INCLUDE -->';
-
-		if (strpos($menuContent, $this->getClassName()) !== false) {
-			file_put_contents($menu, '', FILE_APPEND);
-		} else {
-			$menuContent = str_replace('<!-- AUTOGEN INCLUDE -->', $data, $menuContent);
-			file_put_contents($menu, $menuContent);
-		}
 	}
 
 	public function createPhpFile(PhpNamespace $php, string $filePath): void
@@ -142,8 +132,7 @@ class AutocrudService
 		$code .= PHP_EOL;
 		$code .= $php->__toString();
 
-		fopen($filePath, 'w');
-		file_put_contents($filePath, $code);
+		$this->createFile($filePath, $code);
 	}
 
 	public function toParameters(): string

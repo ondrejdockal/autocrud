@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class FormFactory extends BaseGenerator
@@ -19,7 +20,7 @@ class FormFactory extends BaseGenerator
 	public function create(): void
 	{
 		$namespace = $this->autocrudService->getNamespace();
-		$php = new PhpNamespace($namespace . '\Admin');
+		$php = new PhpNamespace($namespace . '\\' . AutocrudService::ADMIN);
 
 		$php->addUse('Nette\Application\UI\Form');
 		$php->addUse('Nette\Utils\ArrayHash');
@@ -47,9 +48,9 @@ class FormFactory extends BaseGenerator
 		foreach ($properties as $property) {
 			$prop[] = '$values->' . $property['name'];
 
-			$body .= '$form->add' . ucfirst($property['settings']['inputType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\')' . PHP_EOL; // @codingStandardsIgnoreLine
+			$body .= '$form->add' . ucfirst($property['settings']['input']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['label'] . '\')' . PHP_EOL; // @codingStandardsIgnoreLine
 
-			if ($property['settings']['inputType'] == 'upload') {
+			if ($property['settings']['input'] == 'upload') {
 				$body .= '	->addRule(Form::MAX_FILE_SIZE, \'Maximální velikost je 5 MB.\', 5 * 1024 * 1024)' . PHP_EOL; // @codingStandardsIgnoreLine
 
 			} else {
@@ -108,7 +109,7 @@ class FormFactory extends BaseGenerator
 
 		$method->setBody($body);
 
-		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$filePath = $this->autocrudService->getPath() . AutocrudService::ADMIN. '/' . $className . self::NAME . '.php';
 		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 

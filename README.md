@@ -21,7 +21,7 @@ autocrud:
 
 annotations:
 	ignore:
-		- Docky\Autocrud\Autocrud
+		- Docky\Autocrud\Annotation\Autocrud
 		- Autocrud
 ```
 
@@ -31,7 +31,7 @@ annotations:
 /**
  * @var string
  * @ORM\Column(type="string")
- * @Autocrud(type="string", inputType="text", inputLabel="Název", gridType="text")
+ * @Autocrud(typehint="string", input="text", label="Název", grid="text")
  */
 private $title;
 ```

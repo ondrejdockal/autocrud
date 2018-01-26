@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class FrontPresenter extends BaseGenerator
@@ -19,7 +20,7 @@ class FrontPresenter extends BaseGenerator
 	public function create(): void
 	{
 		$namespace = $this->autocrudService->getNamespace();
-		$php = new PhpNamespace($namespace . '\UI');
+		$php = new PhpNamespace($namespace . '\\' . AutocrudService::UI);
 
 		$php->addUse('App\UI\Front\FrontPresenter');
 
@@ -48,7 +49,7 @@ class FrontPresenter extends BaseGenerator
 		$method = $class->addMethod('renderDefault');
 		$method->setReturnType('void');
 
-		$filePath = $this->autocrudService->getPath() . 'UI/' . $className . self::NAME . '.php';
+		$filePath = $this->autocrudService->getPath() . AutocrudService::UI . '/' . $className . self::NAME . '.php';
 		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 

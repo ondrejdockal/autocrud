@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class Presenter extends BaseGenerator
@@ -19,16 +20,16 @@ class Presenter extends BaseGenerator
 	public function create(): void
 	{
 		$namespace = $this->autocrudService->getNamespace();
-		$php = new PhpNamespace($namespace . '\Admin');
+		$php = new PhpNamespace($namespace . '\\' . AutocrudService::ADMIN);
 
 		$php->addUse('App\UI\Admin\AdminPresenter');
 		$php->addUse('Nette\Application\UI\Form');
 		$php->addUse('Ublaboo\DataGrid\DataGrid');
 
 		$className = $this->autocrudService->getClassName();
-		$php->addUse('App\\' . $className . '\Admin\\' . $className . Facade::NAME);
-		$php->addUse('App\\' . $className . '\Admin\\' . $className . FormFactory::NAME);
-		$php->addUse('App\\' . $className . '\Admin\\' . $className . GridFactory::NAME);
+		$php->addUse('App\\' . $className . '\\' .AutocrudService::ADMIN . '\\' . $className . Facade::NAME);
+		$php->addUse('App\\' . $className . '\\' . AutocrudService::ADMIN . '\\' . $className . FormFactory::NAME);
+		$php->addUse('App\\' . $className . '\\' . AutocrudService::ADMIN . '\\' . $className . GridFactory::NAME);
 		$php->addUse('App\\' . $className . '\\' . $className . Repository::NAME);
 
 		$class = $php->addClass($this->getFileName());
@@ -57,11 +58,11 @@ class Presenter extends BaseGenerator
 		$method->addParameter($nameLower . Repository::NAME)
 			->setTypeHint($namespace . '\\' . $className . Repository::NAME);
 		$method->addParameter($nameLower . Facade::NAME)
-			->setTypeHint($namespace . '\Admin\\' . $className . Facade::NAME);
+			->setTypeHint($namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . Facade::NAME);
 		$method->addParameter($nameLower . FormFactory::NAME)
-			->setTypeHint($namespace . '\Admin\\' . $className . FormFactory::NAME);
+			->setTypeHint($namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . FormFactory::NAME);
 		$method->addParameter($nameLower . GridFactory::NAME)
-			->setTypeHint($namespace . '\Admin\\' . $className . GridFactory::NAME);
+			->setTypeHint($namespace . '\\' . AutocrudService::ADMIN . '\\' . $className . GridFactory::NAME);
 
 		$body = 'parent::__construct();' . PHP_EOL;
 		$body .= '$this->' . $nameLower . Repository::NAME . ' = $' . $nameLower . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
@@ -74,26 +75,27 @@ class Presenter extends BaseGenerator
 		$method = $class->addMethod('startUp');
 		$method->setReturnType('void');
 		$body = 'parent::startUp();' . PHP_EOL;
-		$body .= '$this->navigation->add(\'' . $className . '\', $this->link(\'' . $className . ':\'));';
+		$body .= '$this->navigation->add(\'' . $this->autocrudService->getName() . '\', $this->link(\'' . $className . ':\'));';
 		$method->setBody($body);
 
 		$method = $class->addMethod('renderDefault');
 		$method->setReturnType('void');
-		$body = '$this->template->heading = \'' . $className . '\';';
+		$body = '$this->template->heading = \'' . $this->autocrudService->getName() . '\';';
 		$method->setBody($body);
 
 		$method = $class->addMethod('renderEdit');
 		$method->addParameter('id')
 			->setTypeHint('int');
 		$method->setReturnType('void');
-		$body = '$this->template->heading = \'Úprava\';' . PHP_EOL;
-		$body .= '$this->navigation->add(\'' . $className . '\', $this->link(\'this\'));' . PHP_EOL;
+		$body = '$this->navigation->add(\'Úprava\', $this->link(\'this\'));' . PHP_EOL;
+		$body .= '$this->template->heading = \'Úprava\';' . PHP_EOL;
 		$body .= '$this->setView(\'add\');' . PHP_EOL;
 		$method->setBody($body);
 
 		$method = $class->addMethod('renderAdd');
 		$method->setReturnType('void');
-		$body = '$this->template->heading = \'Přidání\';' . PHP_EOL;
+		$body = '$this->navigation->add(\'Přidání\', $this->link(\'this\'));' . PHP_EOL;
+		$body .= '$this->template->heading = \'Přidání\';' . PHP_EOL;
 		$method->setBody($body);
 
 		$method = $class->addMethod('createComponentDataGrid');
@@ -137,7 +139,7 @@ class Presenter extends BaseGenerator
 
 		$method->setBody($body);
 
-		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$filePath = $this->autocrudService->getPath() . AutocrudService::ADMIN . '/' . $className . self::NAME . '.php';
 		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 

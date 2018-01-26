@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class GridFactory extends BaseGenerator
@@ -19,7 +20,7 @@ class GridFactory extends BaseGenerator
 	public function create(): void
 	{
 		$namespace = $this->autocrudService->getNamespace();
-		$php = new PhpNamespace($namespace . '\Admin');
+		$php = new PhpNamespace($namespace . '\\' . AutocrudService::ADMIN);
 
 		$php->addUse('App\DataGrid\DataGridFactory');
 		$php->addUse('Kdyby\Doctrine\QueryBuilder');
@@ -56,7 +57,7 @@ class GridFactory extends BaseGenerator
 
 		$properties = $this->autocrudService->getProperties();
 		foreach ($properties as $property) {
-			$body .= '$grid->addColumn' . ucfirst($property['settings']['gridType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\');' . PHP_EOL; // @codingStandardsIgnoreLine
+			$body .= '$grid->addColumn' . ucfirst($property['settings']['grid']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['label'] . '\');' . PHP_EOL; // @codingStandardsIgnoreLine
 		}
 
 		$body .= PHP_EOL;
@@ -70,7 +71,7 @@ class GridFactory extends BaseGenerator
 		$method->setBody($body);
 
 		$className = $this->autocrudService->getClassName();
-		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$filePath = $this->autocrudService->getPath() . AutocrudService::ADMIN. '/' . $className . self::NAME . '.php';
 		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 

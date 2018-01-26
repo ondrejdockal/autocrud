@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud\Generator;
 
+use Docky\Autocrud\AutocrudService;
 use Nette\PhpGenerator\PhpNamespace;
 
 class Facade extends BaseGenerator
@@ -19,7 +20,7 @@ class Facade extends BaseGenerator
 	public function create(): void
 	{
 		$namespace = $this->autocrudService->getNamespace();
-		$php = new PhpNamespace($namespace . '\Admin');
+		$php = new PhpNamespace($namespace . '\\' . AutocrudService::ADMIN);
 		$php->addUse('Doctrine\ORM\EntityManager');
 
 		$className = $this->autocrudService->getClassName();
@@ -61,7 +62,7 @@ class Facade extends BaseGenerator
 
 		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
-				->setTypeHint($property['settings']['type']);
+				->setTypeHint($property['settings']['typehint']);
 		}
 
 		$body = '$entity = $this->' . $nameLower . Factory::NAME . '->create(' . $this->autocrudService->toParameters() . ');' . PHP_EOL; // @codingStandardsIgnoreLine
@@ -80,7 +81,7 @@ class Facade extends BaseGenerator
 
 		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
-				->setTypeHint($property['settings']['type']);
+				->setTypeHint($property['settings']['typehint']);
 		}
 
 		$body = '$entity = $this->' . $nameLower . Repository::NAME . '->getById($id);' . PHP_EOL;
@@ -109,7 +110,7 @@ class Facade extends BaseGenerator
 
 		$method->setBody($body);
 
-		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$filePath = $this->autocrudService->getPath() . AutocrudService::ADMIN. '/' . $className . self::NAME . '.php';
 		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 

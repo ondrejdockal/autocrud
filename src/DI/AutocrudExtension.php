@@ -16,14 +16,21 @@ class AutocrudExtension extends CompilerExtension
 		if (!$this->compiler->getExtensions('Kdyby\Console\DI\ConsoleExtension')) {
 			throw new AssertionException('You need to register \'Kdyby\Console\DI\ConsoleExtension\' before \'' . get_class($this) . '\'.');
 		}
+
+		$config = $this->getConfig();
+
 		$builder = $this->getContainerBuilder();
-		$builder->addDefinition($this->prefix('command'), $this->getCommandServiceDefinition('Docky\Autocrud\Command\AutocrudCommand'));
+
+		$builder->addDefinition(
+			$this->prefix('command'),
+			$this->getCommandServiceDefinition('Docky\Autocrud\Command\AutocrudCommand')
+		);
 
 		$builder->addDefinition($this->prefix('generator'))
 			->setFactory('Docky\Autocrud\AutocrudGenerator');
 
 		$builder->addDefinition($this->prefix('service'))
-			->setFactory('Docky\Autocrud\AutocrudService');
+			->setFactory('Docky\Autocrud\AutocrudService', ['dir' => $config['dir']]);
 
 		$builder->addDefinition($this->prefix('repository'))
 			->setFactory('Docky\Autocrud\Generator\Repository');

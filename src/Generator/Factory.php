@@ -29,7 +29,7 @@ class Factory extends BaseGenerator
 
 		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
-				->setTypeHint($property['settings']['type']);
+				->setTypeHint($property['settings']['typehint']);
 		}
 
 		$method->setBody('return new ' . $className . '(' . $this->autocrudService->toParameters() . ');');
