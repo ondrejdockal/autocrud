@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Docky\Autocrud;
 
+use Nette\PhpGenerator\PhpNamespace;
+
 class AutocrudService
 {
 
@@ -31,6 +33,11 @@ class AutocrudService
 		return $this->className;
 	}
 
+	public function getClassNameLower(): string
+	{
+		return mb_strtolower($this->getClassName());
+	}
+
 	public function setClassName(string $className): void
 	{
 		$this->className = $className;
@@ -46,7 +53,7 @@ class AutocrudService
 		$this->properties = $properties;
 	}
 
-	private function getPath(): string
+	public function getPath(): string
 	{
 		$namespace = str_replace('App', '', $this->getNamespace());
 		$namespace = str_replace('\\', '', $namespace);
@@ -125,6 +132,33 @@ class AutocrudService
 			$menuContent = str_replace('<!-- AUTOGEN INCLUDE -->', $data, $menuContent);
 			file_put_contents($menu, $menuContent);
 		}
+	}
+
+	public function createPhpFile(PhpNamespace $php, string $filePath): void
+	{
+		$code = '<?php' . PHP_EOL;
+		$code .= PHP_EOL;
+		$code .= 'declare(strict_types = 1);' . PHP_EOL;
+		$code .= PHP_EOL;
+		$code .= $php->__toString();
+
+		fopen($filePath, 'w');
+		file_put_contents($filePath, $code);
+	}
+
+	public function toParameters(): string
+	{
+		$array = [];
+		foreach ($this->getProperties() as $property) {
+			$array[] = '$' . $property['name'];
+		}
+
+		return implode(', ', $array);
+	}
+
+	public function toSetter(string $property): string
+	{
+		return '$entity->set' . ucfirst($property) . '($' . $property . ');';
 	}
 
 }

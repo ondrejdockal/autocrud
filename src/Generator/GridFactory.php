@@ -13,12 +13,13 @@ class GridFactory extends BaseGenerator
 
 	private function getFileName(): string
 	{
-		return $this->getClassName() . self::NAME;
+		return $this->autocrudService->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->getNamespace() . '\Admin');
+		$namespace = $this->autocrudService->getNamespace();
+		$php = new PhpNamespace($namespace . '\Admin');
 
 		$php->addUse('App\DataGrid\DataGridFactory');
 		$php->addUse('Kdyby\Doctrine\QueryBuilder');
@@ -53,7 +54,8 @@ class GridFactory extends BaseGenerator
 
 		$body .= PHP_EOL;
 
-		foreach ($this->getProperties() as $property) {
+		$properties = $this->autocrudService->getProperties();
+		foreach ($properties as $property) {
 			$body .= '$grid->addColumn' . ucfirst($property['settings']['gridType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\');' . PHP_EOL; // @codingStandardsIgnoreLine
 		}
 
@@ -67,8 +69,9 @@ class GridFactory extends BaseGenerator
 
 		$method->setBody($body);
 
-		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
-		$this->createPhpFile($php, $filePath);
+		$className = $this->autocrudService->getClassName();
+		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 
 }

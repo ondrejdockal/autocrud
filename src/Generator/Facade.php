@@ -13,17 +13,19 @@ class Facade extends BaseGenerator
 
 	private function getFileName(): string
 	{
-		return $this->getClassName() . self::NAME;
+		return $this->autocrudService->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->getNamespace() . '\Admin');
+		$namespace = $this->autocrudService->getNamespace();
+		$php = new PhpNamespace($namespace . '\Admin');
 		$php->addUse('Doctrine\ORM\EntityManager');
 
-		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Factory::NAME);
-		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Repository::NAME);
-		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName());
+		$className = $this->autocrudService->getClassName();
+		$php->addUse('App\\' . $className . '\\' . $className . Factory::NAME);
+		$php->addUse('App\\' . $className . '\\' . $className . Repository::NAME);
+		$php->addUse('App\\' . $className . '\\' . $className);
 
 		$class = $php->addClass($this->getFileName());
 
@@ -31,37 +33,38 @@ class Facade extends BaseGenerator
 			->setVisibility('private')
 			->addComment('@var EntityManager');
 
-		$class->addProperty($this->getClassNameLower() . Factory::NAME)
+		$nameLower = $this->autocrudService->getClassNameLower();
+		$class->addProperty($nameLower . Factory::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->getClassName() . Factory::NAME);
+			->addComment('@var ' . $className . Factory::NAME);
 
-		$class->addProperty($this->getClassNameLower() . Repository::NAME)
+		$class->addProperty($nameLower . Repository::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->getClassName() . Repository::NAME);
+			->addComment('@var ' . $className . Repository::NAME);
 
 		$method = $class->addMethod('__construct');
 		$method->addParameter('entityManager')
 			->setTypeHint('Doctrine\ORM\EntityManager');
-		$method->addParameter($this->getClassNameLower() . Factory::NAME)
-			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Factory::NAME);
-		$method->addParameter($this->getClassNameLower() . Repository::NAME)
-			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Repository::NAME);
+		$method->addParameter($nameLower . Factory::NAME)
+			->setTypeHint($namespace . '\\' . $className . Factory::NAME);
+		$method->addParameter($nameLower . Repository::NAME)
+			->setTypeHint($namespace . '\\' . $className . Repository::NAME);
 
 		$body = '$this->entityManager = $entityManager;' . PHP_EOL;
-		$body .= '$this->' . $this->getClassNameLower() . Factory::NAME . ' = $' . $this->getClassNameLower() . Factory::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
-		$body .= '$this->' . $this->getClassNameLower() . Repository::NAME . ' = $' . $this->getClassNameLower() . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $nameLower . Factory::NAME . ' = $' . $nameLower . Factory::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $nameLower . Repository::NAME . ' = $' . $nameLower . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
 
 		$method->setBody($body);
 
 		$method = $class->addMethod('create');
-		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
+		$method->setReturnType($namespace . '\\' . $className);
 
-		foreach ($this->getProperties() as $property) {
+		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$body = '$entity = $this->' . $this->getClassNameLower() . Factory::NAME . '->create(' . $this->toParameters() . ');' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body = '$entity = $this->' . $nameLower . Factory::NAME . '->create(' . $this->autocrudService->toParameters() . ');' . PHP_EOL; // @codingStandardsIgnoreLine
 		$body .= PHP_EOL;
 		$body .= '$this->entityManager->persist($entity);' . PHP_EOL;
 		$body .= '$this->entityManager->flush($entity);' . PHP_EOL;
@@ -71,20 +74,20 @@ class Facade extends BaseGenerator
 		$method->setBody($body);
 
 		$method = $class->addMethod('update');
-		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
+		$method->setReturnType($namespace . '\\' . $className);
 		$method->addParameter('id')
 			->setTypeHint('int');
 
-		foreach ($this->getProperties() as $property) {
+		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$body = '$entity = $this->' . $this->getClassNameLower() . Repository::NAME . '->getById($id);' . PHP_EOL;
+		$body = '$entity = $this->' . $nameLower . Repository::NAME . '->getById($id);' . PHP_EOL;
 		$body .= PHP_EOL;
 
-		foreach ($this->getProperties() as $property) {
-			$body .= $this->toSetter($property['name']) . PHP_EOL;
+		foreach ($this->autocrudService->getProperties() as $property) {
+			$body .= $this->autocrudService->toSetter($property['name']) . PHP_EOL;
 		}
 
 		$body .= PHP_EOL;
@@ -100,14 +103,14 @@ class Facade extends BaseGenerator
 		$method->addParameter('id')
 			->setTypeHint('int');
 
-		$body = '$entity = $this->' . $this->getClassNameLower() . Repository::NAME . '->getById($id);' . PHP_EOL;
+		$body = '$entity = $this->' . $nameLower . Repository::NAME . '->getById($id);' . PHP_EOL;
 		$body .= '$this->entityManager->remove($entity);' . PHP_EOL;
 		$body .= '$this->entityManager->flush($entity);' . PHP_EOL;
 
 		$method->setBody($body);
 
-		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
-		$this->createPhpFile($php, $filePath);
+		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 
 }

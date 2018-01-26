@@ -13,27 +13,29 @@ class Factory extends BaseGenerator
 
 	private function getFileName(): string
 	{
-		return $this->getClassName() . self::NAME;
+		return $this->autocrudService->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->getNamespace());
+		$namespace = $this->autocrudService->getNamespace();
+		$php = new PhpNamespace($namespace);
 
 		$class = $php->addClass($this->getFileName());
 
 		$method = $class->addMethod('create');
-		$method->setReturnType($this->getNamespace() . '\\' . $this->getClassName());
+		$className = $this->autocrudService->getClassName();
+		$method->setReturnType($namespace . '\\' . $className);
 
-		foreach ($this->getProperties() as $property) {
+		foreach ($this->autocrudService->getProperties() as $property) {
 			$method->addParameter($property['name'])
 				->setTypeHint($property['settings']['type']);
 		}
 
-		$method->setBody('return new ' . $this->getClassName() . '(' . $this->toParameters() . ');');
+		$method->setBody('return new ' . $className . '(' . $this->autocrudService->toParameters() . ');');
 
-		$filePath = $this->getPath() . $this->getClassName() . self::NAME . '.php';
-		$this->createPhpFile($php, $filePath);
+		$filePath = $this->autocrudService->getPath() . $className . self::NAME . '.php';
+		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 
 }

@@ -13,40 +13,43 @@ class FrontPresenter extends BaseGenerator
 
 	private function getFileName(): string
 	{
-		return $this->getClassName() . self::NAME;
+		return $this->autocrudService->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->getNamespace() . '\UI');
+		$namespace = $this->autocrudService->getNamespace();
+		$php = new PhpNamespace($namespace . '\UI');
 
 		$php->addUse('App\UI\Front\FrontPresenter');
 
-		$php->addUse('App\\' . $this->getClassName() . '\\' . $this->getClassName() . Repository::NAME);
+		$className = $this->autocrudService->getClassName();
+		$php->addUse('App\\' . $className . '\\' . $className . Repository::NAME);
 
 		$class = $php->addClass($this->getFileName());
 		$class->addExtend('App\UI\Front\FrontPresenter');
 
 		$class->addComment('@presenterModule Front');
 
-		$class->addProperty($this->getClassNameLower() . Repository::NAME)
+		$nameLower = $this->autocrudService->getClassNameLower();
+		$class->addProperty($nameLower . Repository::NAME)
 			->setVisibility('private')
-			->addComment('@var ' . $this->getClassName() . Repository::NAME);
+			->addComment('@var ' . $className . Repository::NAME);
 
 		$method = $class->addMethod('__construct');
-		$method->addParameter($this->getClassNameLower() . Repository::NAME)
-			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName() . Repository::NAME);
+		$method->addParameter($nameLower . Repository::NAME)
+			->setTypeHint($namespace . '\\' . $className . Repository::NAME);
 
 		$body = 'parent::__construct();' . PHP_EOL;
-		$body .= '$this->' . $this->getClassNameLower() . Repository::NAME . ' = $' . $this->getClassNameLower() . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
+		$body .= '$this->' . $nameLower . Repository::NAME . ' = $' . $nameLower . Repository::NAME.';' . PHP_EOL; // @codingStandardsIgnoreLine
 
 		$method->setBody($body);
 
 		$method = $class->addMethod('renderDefault');
 		$method->setReturnType('void');
 
-		$filePath = $this->getPath() . 'UI/' . $this->getClassName() . self::NAME . '.php';
-		$this->createPhpFile($php, $filePath);
+		$filePath = $this->autocrudService->getPath() . 'UI/' . $className . self::NAME . '.php';
+		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 
 }

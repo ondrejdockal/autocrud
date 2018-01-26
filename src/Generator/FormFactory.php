@@ -13,16 +13,18 @@ class FormFactory extends BaseGenerator
 
 	private function getFileName(): string
 	{
-		return $this->getClassName() . self::NAME;
+		return $this->autocrudService->getClassName() . self::NAME;
 	}
 
 	public function create(): void
 	{
-		$php = new PhpNamespace($this->getNamespace() . '\Admin');
+		$namespace = $this->autocrudService->getNamespace();
+		$php = new PhpNamespace($namespace . '\Admin');
 
 		$php->addUse('Nette\Application\UI\Form');
 		$php->addUse('Nette\Utils\ArrayHash');
-		$php->addUse($this->getNamespace() . '\\' . $this->getClassName());
+		$className = $this->autocrudService->getClassName();
+		$php->addUse($namespace . '\\' . $className);
 
 		$class = $php->addClass($this->getFileName());
 
@@ -30,7 +32,7 @@ class FormFactory extends BaseGenerator
 		$method->setReturnType('Nette\Application\UI\Form');
 
 		$method->addParameter('entity')
-			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName())
+			->setTypeHint($namespace . '\\' . $className)
 			->setDefaultValue(null)
 			->setNullable();
 
@@ -41,7 +43,8 @@ class FormFactory extends BaseGenerator
 		$body .= PHP_EOL;
 
 		$prop = [];
-		foreach ($this->getProperties() as $property) {
+		$properties = $this->autocrudService->getProperties();
+		foreach ($properties as $property) {
 			$prop[] = '$values->' . $property['name'];
 
 			$body .= '$form->add' . ucfirst($property['settings']['inputType']) . '(\'' . $property['name'] . '\', \'' . $property['settings']['inputLabel'] . '\')' . PHP_EOL; // @codingStandardsIgnoreLine
@@ -91,22 +94,22 @@ class FormFactory extends BaseGenerator
 		$method->setReturnType('array');
 
 		$method->addParameter('entity')
-			->setTypeHint($this->getNamespace() . '\\' . $this->getClassName());
+			->setTypeHint($namespace . '\\' . $className);
 
-		$method->addComment(' @param ' . $this->getClassName() . ' $entity');
+		$method->addComment(' @param ' . $className . ' $entity');
 		$method->addComment(' @return mixed[]');
 
 		$body = 'return [' . PHP_EOL;
 
-		foreach ($this->getProperties() as $property) {
+		foreach ($properties as $property) {
 			$body .= '	\'' . $property['name'] . '\' => $entity->get' . ucfirst($property['name']) . '(),' . PHP_EOL;
 		}
 		$body .= '];' . PHP_EOL;
 
 		$method->setBody($body);
 
-		$filePath = $this->getPath() . 'Admin/' . $this->getClassName() . self::NAME . '.php';
-		$this->createPhpFile($php, $filePath);
+		$filePath = $this->autocrudService->getPath() . 'Admin/' . $className . self::NAME . '.php';
+		$this->autocrudService->createPhpFile($php, $filePath);
 	}
 
 }
