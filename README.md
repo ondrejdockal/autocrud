@@ -16,6 +16,7 @@ extensions:
 	autocrud: Docky\Autocrud\DI\AutocrudExtension
 
 autocrud:
+	dir: src
 	entities:
 		- App\Test\Test
 
